@@ -1,0 +1,43 @@
+{
+    "name": "janjanenjoy/youzhen-logistics",
+    "description": "对接邮政快递生成面单、查询轨迹等",
+    "require": {
+        "illuminate/container": "^5.1",
+        "php": ">=7.1.3",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "wangjunjie",
+            "email": "18382239352@163.com"
+        }
+    ],
+    "autoload": {
+          "psr-4": {
+              "JanjanEnjoy\\Logistics\\": "./src"
+          }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JanjanEnjoy\\Logistics\\Tests\\": "./tests"
+        }
+    },
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JanjanEnjoy\\Logistics\\LogisticsServiceProvider"
+            ],
+            "aliases": {
+                "Crypt": "JanjanEnjoy\\Logistics\\Facade\\Logistics"
+            }
+        }
+    }
+}
