@@ -11,6 +11,8 @@ namespace JanjanEnjoy\Logistics;
 
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Application as LaravelApplication;
+use Laravel\Lumen\Application as LumenApplication;
 
 class LogisticsFactoryProvider extends ServiceProvider
 {
@@ -19,12 +21,14 @@ class LogisticsFactoryProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      *
+     * 此provider文件如果不需要作为中间件等预加载功能，则不用加入到app.php的自动部署的服务，仅用于发布配置文件，
+     * php artisan vendor:public --provider=...\LogisticsFactoryProvider
      * @return void
      */
     public function boot()
     {
 
-        $source = realpath(dirname(__DIR__).'/config/logistics_common.php');
+        $source = realpath(dirname(__DIR__) . '/config/logistics_common.php');
 
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('logistics_common.php')]);
@@ -46,11 +50,10 @@ class LogisticsFactoryProvider extends ServiceProvider
             return new LogisticsFactory();
         });
         $this->app->alias(LogisticsFactory::class, 'logisticsFactory');
-
     }
 
     public function provides()
     {
-        return [LogisticsFactory::class,'logisticsFactory'];
+        return [LogisticsFactory::class, 'logisticsFactory'];
     }
 }

@@ -8,7 +8,6 @@
 
 namespace JanjanEnjoy\Logistics\Exceptions;
 
-use Throwable;
 
 class LogisticsExcepition extends \Exception
 {
@@ -16,7 +15,8 @@ class LogisticsExcepition extends \Exception
         5010 => '未检测到配置文件',
         5011 => '暂未对接该快递类型',
         5012 => '下单取号请求错误',
-        5013 => '请选择快递类型'
+        5013 => '请选择快递类型',
+        5014 => "邮政下单取号失败"
     ];
 
     public function __construct($code)
