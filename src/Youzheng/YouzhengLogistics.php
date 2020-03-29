@@ -21,8 +21,7 @@ class YouzhengLogistics
     public function __construct()
     {
         try {
-
-            $allConfig = config('logitics_common.youzheng') ?? include(dirname(__DIR__) . '/config/logistics_common.php');
+            $allConfig = config('logistics_common') ?? include(dirname(__DIR__) . '/config/logistics_common.php');
             $this->config = $allConfig['youzheng'];
         } catch (\Exception $e) {
 //            $this->config = include(dirname(__DIR__) . '/../config/logistics_common.php');
@@ -62,7 +61,7 @@ class YouzhengLogistics
             return $this->handleOrderResult($result);
         } catch (\Exception $e) {
             Log::error("邮政物流下单取号发生错误", [$e]);
-            throw new LogisticsExcepition(5010);
+            throw new LogisticsExcepition(5014);
         }
     }
 
