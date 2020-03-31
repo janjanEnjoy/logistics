@@ -6,6 +6,10 @@
  * Time: 9:31
  */
 
+//function env($a,$b=null){
+//    return $b;
+//}
+
 return [
 
     "youzheng" => [
@@ -13,14 +17,18 @@ return [
         /************** 下单接口 ********************/
         //电商标识
         "ec_company_id" => env("YZ_EC_COMPANY_ID","SCXTHK"),
+        //大客户代码
+        "send_no" =>env("YZ_SEND_NO","1100043911134"),
+        //电商客户标识: 50位以下随机数
+        "ecommerce_user_id" =>env("YZ_ECOMMERCE_USER_ID","XT5316266362553788"),
 
         //寄件人、发货人
-        "xintian_name" => env('XINTIAN_NAME',"心田花开"),
-        "xintian_phone" => env("XINTIAN_PHONE","123456789"),
-        "xintian_province" => env("XINTIAN_province","四川"),
-        "xintian_city" => env("XINTIAN_CITY","成都"),
-        "xintian_district" => env("XINTIAN_DISTRICT","武侯区"),
-        "xintian_address" => env("XINTIAN_ADDRESS","武侯区航空路北国航世纪中心B座附近"),
+        "sender_name" => env('XINTIAN_NAME',"心田花开"),
+        "sender_phone" => env("XINTIAN_PHONE","123456789"),
+        "sender_province" => env("XINTIAN_province","四川"),
+        "sender_city" => env("XINTIAN_CITY","成都"),
+        "sender_district" => env("XINTIAN_DISTRICT","武侯区"),
+        "sender_address" => env("XINTIAN_ADDRESS","武侯区航空路北国航世纪中心B座附近"),
 
         //基础产品代码
         /**
@@ -52,7 +60,7 @@ return [
         "order_logistics_url" => env("YZ_ORDER_LOGISTICS_URL","https://211.156.195.199/iwaybillno-web/a/iwaybill/receive"),
 
         //环境密钥
-        "partner_secret" => env('YZ_PARTNER_SECRET'),
+        "partner_secret" => env('YZ_PARTNER_SECRET',"key123xydJDPT"),
 
         /************** 查询轨迹接口 ********************/
 

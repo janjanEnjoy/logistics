@@ -51,7 +51,7 @@ class YouzhengLogistics
             $xmlData = $this->getOrderLogisticsXml($params);
 
             //签名
-            $digistData = $this->getDigistData($xmlData,$this->config['partner_secret'],true);
+            $digistData = $this->getDigistData($xmlData, $this->config['partner_secret'], true);
             $requestData = [
                 'logistics_interface' => $xmlData,
                 'data_digest' => $digistData,
@@ -91,7 +91,7 @@ class YouzhengLogistics
     {
         $url = $this->config['query_logistics_url'];
         $msgBody = json_encode(["traceNo" => $logisticsNum]);
-        $dataDigest = $this->getDigistData($msgBody,$this->config['query_secret'],false);
+        $dataDigest = $this->getDigistData($msgBody, $this->config['query_secret'], false);
 
         $requestData = [
             "sendID" => $this->config['sendId'],
@@ -102,10 +102,10 @@ class YouzhengLogistics
             "receiveID" => $this->config['receiveId'],
             "dataType" => 1,
             "dataDigest" => $dataDigest,
-            "msgBody" =>urlencode( $msgBody)
+            "msgBody" => urlencode($msgBody)
         ];
         $result = $this->post($url, http_build_query($requestData), 2000);
-        return json_decode($result,true);
+        return json_decode($result, true);
     }
 
     /**
@@ -133,22 +133,28 @@ class YouzhengLogistics
         $isChengdu = $params['is_chengdu'];
 
         /****以下信息 均从config 配置信息中读取*****/
-        //寄件人
-        $senderPhone = $this->config['xintian_phone'];
-        $senderProvince = $this->config['xintian_province'];
-        $senderCity = $this->config['xintian_city'];
-        $senderDistrict = $this->config['xintian_district'];
-        $senderAddress = $this->config['xintian_address'];
-        //发货人
-        $pickupName = $this->config['xintian_name'];
-        $pickupPhone = $this->config['xintian_phone'];
-        $pickupProvince = $this->config['xintian_province'];
-        $pickupCity = $this->config['xintian_city'];
-        $pickupDistrict = $this->config['xintian_district'];
-        $pickupAddress = $this->config['xintian_address'];
+        //***寄件人
+        $senderName = $this->config['sender_name'];
 
+        $senderProvince = $this->config['sender_province'];
+        $senderCity = $this->config['sender_city'];
+        $senderDistrict = $this->config['sender_district'];
+        $senderAddress = $this->config['sender_address'];
+        //寄件人电话：
+        $senderPhone = "";
+        $senderMobile = "";
+        if (strlen($this->config['sender_phone']) == 11) {
+            $senderMobile = $this->config['sender_phone'];
+        } else {
+            $senderPhone = $this->config['sender_phone'];
+        }
+
+        //电商标识
         $ecCompanyId = $this->config['ec_company_id'];
-
+        //大客户
+        $sendNo = $this->config['send_no'];
+        //电商客户标识
+        $ecommerceUserId = $this->config['ecommerce_user_id'];
         //非成都本地和成都本地 快递类型区分
         $productAttr = $isChengdu ? $this->config['product_type']['in'] : $this->config['product_type']['out'];
         $baseProductNo = $productAttr['base_product_no'];
@@ -179,9 +185,9 @@ CARGO;
     <created_time>$now</created_time>
     <logistics_provider>$logisticsProvider</logistics_provider>
     <ecommerce_no>$ecCompanyId</ecommerce_no>
-    <ecommerce_user_id>2</ecommerce_user_id>
+    <ecommerce_user_id>$ecommerceUserId</ecommerce_user_id>
     <sender_type>1</sender_type>
-    <sender_no></sender_no>
+    <sender_no>$sendNo</sender_no>
     <inner_channel>0</inner_channel>
     <logistics_order_no>$logisticsOrderNumber</logistics_order_no>
     <batch_no></batch_no>
@@ -204,13 +210,13 @@ CARGO;
     <insurance_amount></insurance_amount>
     <deliver_type></deliver_type>
     <deliver_pre_date></deliver_pre_date>
-    <pickup_type></pickup_type>
+    <pickup_type>1</pickup_type>
     <pickup_pre_begin_time></pickup_pre_begin_time>
     <pickup_pre_end_time></pickup_pre_end_time>
-    <payment_mode></payment_mode>
-    <cod_flag></cod_flag>
+    <payment_mode>1</payment_mode>
+    <cod_flag>9</cod_flag>
     <cod_amount></cod_amount>
-    <receipt_flag></receipt_flag>
+    <receipt_flag>1</receipt_flag>
     <receipt_waybill_no></receipt_waybill_no>
     <electronic_preferential_no></electronic_preferential_no>
     <electronic_preferential_amount></electronic_preferential_amount>
@@ -220,24 +226,24 @@ CARGO;
     <note></note>
     <project_id></project_id>
     <sender>
-        <name>心田花开</name>
+        <name>$senderName</name>
         <post_code></post_code>
-        <phone></phone>
-        <mobile>$senderPhone</mobile>
+        <phone>$senderPhone</phone>
+        <mobile>$senderMobile</mobile>
         <prov>$senderProvince</prov>
         <city>$senderCity</city>
         <county>$senderDistrict</county>
         <address>$senderAddress</address>
     </sender>
     <pickup>
-        <name>$pickupName</name>
+        <name>$senderName</name>
         <post_code></post_code>
-        <phone></phone>
-        <mobile>$pickupPhone</mobile>
-        <prov>$pickupProvince</prov>
-        <city>$pickupCity</city>
-        <county>$pickupDistrict</county>
-        <address>$pickupAddress</address>
+        <phone>$senderPhone</phone>
+        <mobile>$senderMobile</mobile>
+        <prov>$senderProvince</prov>
+        <city>$senderCity</city>
+        <county>$senderDistrict</county>
+        <address>$senderAddress</address>
     </pickup>
     <receiver>
         <name>$receiveName</name>
@@ -296,7 +302,7 @@ XML;
      * @param $rawOutput //可选参数为true或false，机密后：true：16位，false：32位
      * @return string
      */
-    private function getDigistData($data,$secret,$rawOutput)
+    private function getDigistData($data, $secret, $rawOutput)
     {
         return base64_encode(md5($data . $secret, $rawOutput));
     }
