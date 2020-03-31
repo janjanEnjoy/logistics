@@ -21,10 +21,12 @@ class YouzhengLogistics
     public function __construct()
     {
         try {
-            $allConfig = config('logistics_common') ?? include(dirname(__DIR__) . '/config/logistics_common.php');
+            $allConfig = config('logistics_common') ?? include(dirname(__DIR__) . '/../config/logistics_common.php');
+//            $allConfig = include(dirname(__DIR__) . '/../config/logistics_common.php');
             $this->config = $allConfig['youzheng'];
         } catch (\Exception $e) {
-//            $this->config = include(dirname(__DIR__) . '/../config/logistics_common.php');
+            $allConfig = include(dirname(__DIR__) . '/../config/logistics_common.php');
+            $this->config = $allConfig['youzheng'];
             Log::error("邮政物流下单取号请求错误", [$e]);
             throw new LogisticsExcepition(5010);
         }
@@ -49,7 +51,7 @@ class YouzhengLogistics
             $xmlData = $this->getOrderLogisticsXml($params);
 
             //签名
-            $digistData = $this->getDigistData($xmlData);
+            $digistData = $this->getDigistData($xmlData,$this->config['partner_secret'],true);
             $requestData = [
                 'logistics_interface' => $xmlData,
                 'data_digest' => $digistData,
@@ -88,28 +90,30 @@ class YouzhengLogistics
     public function queryLogistics($logisticsNum)
     {
         $url = $this->config['query_logistics_url'];
-        $dataDigest = $this->getDigistData(json_encode(["traceNo" => $logisticsNum]));
+        $msgBody = json_encode(["traceNo" => $logisticsNum]);
+        $dataDigest = $this->getDigistData($msgBody,$this->config['query_secret'],false);
 
         $requestData = [
-            "Content-Type:application/x-www-form-urlencoded; charset=UTF-8",
-            "sendID" => $this->config['sendID'],
+            "sendID" => $this->config['sendId'],
             "proviceNo" => 99,
             "msgKind" => $this->config['msgKind'],
             "serialNo" => $this->config['serialNo'],
-            "sendDate" => date('YYYYMMDDHHMMSS', time()),
-            "receiveID" => $this->config['receiveID'],
+            "sendDate" => date('Ymdhis', time()),
+            "receiveID" => $this->config['receiveId'],
             "dataType" => 1,
-            "dataDigest" => $dataDigest
+            "dataDigest" => $dataDigest,
+            "msgBody" =>urlencode( $msgBody)
         ];
         $result = $this->post($url, http_build_query($requestData), 2000);
-        return $this->handleQueryResult($result);
+        return json_decode($result,true);
     }
 
-    private function handleQueryResult($result)
-    {
-        return null;
-    }
-
+    /**
+     * 下单取号：获取请求体xml
+     * user: wangjunjie
+     * @param array $params
+     * @return string
+     */
     private function getOrderLogisticsXml(Array $params)
     {
         //创建时间
@@ -253,6 +257,15 @@ XML;
         return $xmlData;
     }
 
+    /**
+     * 发送请求
+     * user: wangjunjie
+     * @param $url
+     * @param $querystring
+     * @param $timeout
+     * @return bool|string
+     * @throws LogisticsExcepition
+     */
     private function post($url, $querystring, $timeout)
     {
         $ch = curl_init();
@@ -265,6 +278,7 @@ XML;
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $response = curl_exec($ch);
+
         // 是否报错
         if (curl_errno($ch)) {
             Log::error("邮政物流下单取号请求错误", [curl_error($ch)]);
@@ -274,11 +288,20 @@ XML;
         return $response;
     }
 
-    private function getDigistData($data)
+    /**
+     * 加密
+     * user: wangjunjie
+     * @param $data
+     * @param $secret
+     * @param $rawOutput //可选参数为true或false，机密后：true：16位，false：32位
+     * @return string
+     */
+    private function getDigistData($data,$secret,$rawOutput)
     {
-        $parternID = $this->config['partner_secret'];
-        return base64_encode(md5($data . $parternID, TRUE));
+        return base64_encode(md5($data . $secret, $rawOutput));
     }
+
+
 }
 
 
