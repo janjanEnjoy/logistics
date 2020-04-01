@@ -29,8 +29,10 @@ $params = [
     ]
 ];
 include ("../Youzheng/YouzhengLogistics.php");
-$obj = new YouzhengLogistics();
 include("../Exceptions/LogisticsExcepition.php");
+include("../Youzheng/YouzhengService.php");
+$obj = new YouzhengLogistics();
+
 
 $res=$obj->orderLogisticsNumber($params);
 print_r($res);
