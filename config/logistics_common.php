@@ -82,8 +82,6 @@ return [
         "rout_info_query_url" =>env("YZ_ROUT_INFO_QUERY_URL","http://211.156.195.42:8086/csb_ceshinew_1"),
         "sk" => env("YZ_SK","TYKveK6sGpNFL0JOC94l7ff9YwM="),
         "ak" => env("YZ_AK","136dce232ab245298a05faf9e2056e1b"),
-        "wpCode_in" => env("YZ_WPCODE_IN","DOUYIN-YZXB"),
-        "wpCode_out" => env("YZ_WPCODE_OUT",""),
         "api_name" => env("YZ_API_NAME","routInfoQueryForPDD1990"),
         "api_version" => env("YZ_API_VERSION","1.0.0"),
 

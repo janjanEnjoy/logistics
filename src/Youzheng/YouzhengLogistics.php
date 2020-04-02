@@ -77,7 +77,7 @@ class YouzhengLogistics
     /**
      * 查询邮政物流接口
      * user: wangjunjie
-     * @param $logisticsNum
+     * @param $logisticsNum //自定义订单号
      * @return mixed
      * @throws LogisticsExcepition
      */
@@ -109,22 +109,26 @@ class YouzhengLogistics
      * @return bool|string
      * @throws LogisticsExcepition
      */
-    public function routInfoQueryForPDD($wayBillNo,$senderAddress, $receiverAddress)
+    public function routInfoQueryForPDD($wayBillNo, $senderAddress, $receiverAddress, $inCity)
     {
         $url = $this->config['rout_info_query_url'];
         $api = $this->config['api_name'];
         $ak = $this->config['ak'];
         $sk = $this->config['sk'];
         $version = $this->config['api_version'];
+
+        //城市内为EMS,外为邮政包裹
+        $wpCodeFlag = $inCity?"EMS":"YZXB";
+
         $data = [
-            "wpCode" => $this->config['wpCode_in'],
+            "wpCode" => $this->config['ec_company_id'].'='.$wpCodeFlag,
             "logisticsInterface" => json_encode(
                 [[
-                "objectId" => $wayBillNo,
-                "senderAddress" => $senderAddress,
-                "receiverAddress" => $receiverAddress
-            ]]),
-            "dataDigest"=>""
+                    "objectId" => $wayBillNo,
+                    "senderAddress" => $senderAddress,
+                    "receiverAddress" => $receiverAddress
+                ]]),
+            "dataDigest" => ""
         ];
 
         try {

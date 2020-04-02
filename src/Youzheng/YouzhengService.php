@@ -37,11 +37,11 @@ class YouzhengService
         $receiveDistrict = $params['receive_district'];
         $receiveAddress = $params['receive_address'];
 
-        $isChengdu = $params['is_chengdu'];
+        $inCity = $params['in_city'];
 
         /****以下信息 均从config 配置信息中读取*****/
         //***寄件人
-        $senderName = $config['sender_name'];
+        $senderName = $params['sender_name'];    //寄件人名称改为传参获取
 
         $senderProvince = $config['sender_province'];
         $senderCity = $config['sender_city'];
@@ -49,12 +49,10 @@ class YouzhengService
         $senderAddress = $config['sender_address'];
         //寄件人电话：
         $senderPhone = "";
-        $senderMobile = "";
-        if (strlen($config['sender_phone']) == 11) {
-            $senderMobile = $config['sender_phone'];
-        } else {
-            $senderPhone = $config['sender_phone'];
+        if (!strlen($params['sender_phone']) == 11) {  //寄件人电话改为传参获取
+            $senderPhone = $params['sender_phone'];
         }
+        $senderMobile = $params['sender_phone'];
 
         //电商标识
         $ecCompanyId = $config['ec_company_id'];
@@ -63,7 +61,7 @@ class YouzhengService
         //电商客户标识
         $ecommerceUserId = $config['ecommerce_user_id'];
         //非成都本地和成都本地 快递类型区分
-        $productAttr = $isChengdu ? $config['product_type']['in'] : $config['product_type']['out'];
+        $productAttr = $inCity ? $config['product_type']['in'] : $config['product_type']['out'];
         $baseProductNo = $productAttr['base_product_no'];
         $bizProductNo = $productAttr['biz_product_no'];
         $logisticsProvider = $productAttr['logistics_provider'];
@@ -228,16 +226,17 @@ XML;
     }
 
     /**
-    生成签名的方法
-    params    原始的输入参数数组 keyValuePairs
-    api       调用服务API名
-    version   服务版本
-    ak        accessKey
-    sk        secretKey
-
-    返回 签名过的url请求数组
+     * 生成签名的方法
+     * params    原始的输入参数数组 keyValuePairs
+     * api       调用服务API名
+     * version   服务版本
+     * ak        accessKey
+     * sk        secretKey
+     *
+     * 返回 签名过的url请求数组
      */
-    protected function sign($params = array(), $api, $version, $ak, $sk){
+    protected function sign($params = array(), $api, $version, $ak, $sk)
+    {
 
         $headers = array();
         $headers['_api_name'] = $api;
@@ -264,36 +263,37 @@ XML;
             if ($k == '_api_signature')
                 continue;
             if ($signstr != '')
-                $signstr = $signstr."&";
-            $signstr = $signstr.$k.'='.$v;
+                $signstr = $signstr . "&";
+            $signstr = $signstr . $k . '=' . $v;
         }
 
         $signature = base64_encode(hash_hmac('sha1', $signstr, $sk, true));
-        $headers['_api_signature'] =  $signature;
+        $headers['_api_signature'] = $signature;
 
         //transfer header
         $theaders = array();
         foreach ($headers as $k => $v) {
-            $theaders[] = $k.":".$v;
+            $theaders[] = $k . ":" . $v;
         }
 
         return $theaders;
     }
 
     /**使用POST方式调用HTTP服务的方法
-    data      请求参数数组 (Key-Vale pairs)
-    api       调用服务API名
-    version   服务版本
-    ak        accessKey
-    sk        secretKey
-
-    返回 从Http服务端返回的串
+     * data      请求参数数组 (Key-Vale pairs)
+     * api       调用服务API名
+     * version   服务版本
+     * ak        accessKey
+     * sk        secretKey
+     *
+     * 返回 从Http服务端返回的串
      */
-    public function doPost($url, $data, $api, $version, $ak, $sk){
+    public function doPost($url, $data, $api, $version, $ak, $sk)
+    {
         $ch = curl_init();   // 初始化一个curl资源类型变量
-        $headers = $this->sign($data,$api, $version, $ak, $sk);
+        $headers = $this->sign($data, $api, $version, $ak, $sk);
 
-        $pd = http_build_query($data,"","&");
+        $pd = http_build_query($data, "", "&");
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $pd);  // 设置POST传递的数据
 
@@ -303,7 +303,8 @@ XML;
     /**
      * 供doPostXXX调用的内部方法，进行实际的POST调用，并返回调用结果
      */
-    protected function postInner($ch, $url, $headers) {
+    protected function postInner($ch, $url, $headers)
+    {
 
         /*设置访问的选项*/
         curl_setopt($ch, CURLOPT_POST, true);  // 设置为POST传递形式
@@ -311,14 +312,14 @@ XML;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); //put signature-related headers
 
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // 启用时会将服务器返回的Location: 放在header中递归的返回给服务器，即允许跳转
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );  // 将获得的数据返回而不是直接在页面上输出
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  // 将获得的数据返回而不是直接在页面上输出
         //curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP );  // 设置访问地址用的协议类型为HTTP
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);  // 访问的超时时间限制为15s
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true) ; // 在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true); // 在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
         //curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
         curl_setopt($ch, CURLOPT_USERAGENT, '');  // 将用户代理置空
         curl_setopt($ch, CURLOPT_HEADER, false);  // 设置不显示头信息
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,false); // 对认证证书来源的检查
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 对认证证书来源的检查
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 从证书中检查SSL加密算法是否存在
 
         curl_setopt($ch, CURLOPT_URL, $url);  // 设置即将访问的URL
