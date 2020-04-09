@@ -43,10 +43,10 @@ class YouzhengService
         //***寄件人
         $senderName = $params['sender_name'];    //寄件人名称改为传参获取
 
-        $senderProvince = $config['sender_province'];
-        $senderCity = $config['sender_city'];
-        $senderDistrict = $config['sender_district'];
-        $senderAddress = $config['sender_address'];
+        $senderProvince = $params['sender_province'];
+        $senderCity = $params['sender_city'];
+        $senderDistrict = $params['sender_district'];
+        $senderAddress = $params['sender_address'];
         //寄件人电话：
         $senderPhone = "";
         if (!strlen($params['sender_phone']) == 11) {  //寄件人电话改为传参获取
