@@ -121,7 +121,7 @@ class YouzhengLogistics
         $wpCodeFlag = $inCity?"EMS":"YZXB";
 
         $data = [
-            "wpCode" => $this->config['ec_company_id'].'='.$wpCodeFlag,
+            "wpCode" => $this->config['ec_company_id'].'-'.$wpCodeFlag,
             "logisticsInterface" => json_encode(
                 [[
                     "objectId" => $wayBillNo,
