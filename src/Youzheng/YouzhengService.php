@@ -26,7 +26,7 @@ class YouzhengService
         //创建时间
         $now = date('Y-m-d H:i:s', time());
 
-        //心田订单号
+        //订单号
         $logisticsOrderNumber = $params['order_sn'];
 
         //收货人信息
